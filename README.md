@@ -1,8 +1,12 @@
 # excel2tsdb
 
 > Convert and export excel file data to OpenMetrics format and support tsdb data export through promtool
+
 > In a nutshell, this tool helps you batch import excel files into Prometheus (import exported tsdb data into Prometheus data directory, restart Prometheus, Be aware of the "--storage.tsdb.retention" parameter default: 15d)
+
 > You don't need to worry about the order of time. I've processed the integrated data in ascending chronological order (yes, if the time is out of order, then the promtool export will have problems. Congratulations, you don't have to worry about that anymore).
+
+**Please do not use excel named in Chinese for import conversion!**
 
 ## usage:
 ```shell
@@ -39,8 +43,15 @@ Use "excel2tsdb [command] --help" for more information about a command.
 
 ## example:
 ```shell
-$ ./excel2tsdb openmetrics --path /home/jwping/temp/jdy_history --excludedRows 1 --timestampColumn 1 --dataColumn 4 --formatTime 2006/01/02 15:04
+$ ./excel2tsdb openmetrics --path /home/jwping/temp/jdy_history --excludedRows 1 --timestampColumn 1 --dataColumn 4 --formatTime "2006/01/02 15:04"
 
+# If you run into problems with too many open files
+# The error message may be as follows:
+
+# block creation: process blocks: get blocks: 2 errors: corrupted block 01GPHY6Y5G64035R2XN4QDA4XA: open /home/jwping/temp/tsdb_bak/01GPHY6Y5G64035R2XN4QDA4XA/tombstones: too many open files; corrupted block 01GPHY6YB9GMPE63QY8XJMC436: open /home/jwping/temp/tsdb_bak/01GPHY6YB9GMPE63QY8XJMC436/tombstones: too many open files
+
+# Run "ulimit -n 65535" to adjust the maximum number of open files
+# If you do not have permission, try switching to root
 $ ./excel2tsdb tsdb --path /home/jwping/temp/jdy_history --excludedRows 1 --timestampColumn 1 --dataColumn 4 --promtoolpath /home/jwping/prometheus-2.41.0.linux-a
 md64/promtool --outdir /home/jwping/temp/tsdb_bak
 ```
