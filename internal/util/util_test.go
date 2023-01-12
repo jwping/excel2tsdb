@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetExcel(t *testing.T) {
-	dataMetrics, err := GetMetrics("/home/jwping/gopath/excel2tsdb/testdir", false, nil, []int{1}, 1, 4)
+	dataMetrics, err := GetMetrics("/home/jwping/gopath/excel2tsdb/testdir", false, nil, []int{1}, 1, 4, "", false)
 	if err != nil {
 		t.Error(err)
 	}

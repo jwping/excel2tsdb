@@ -32,13 +32,13 @@ func init() {
 }
 
 func toOpenMetricsRun() error {
-	dataMetrics, err := util.GetMetrics(*excelPath, *deep, *worksheets, *excludedRows, *timestampColumn, *dataColumn)
+	dataMetrics, err := util.GetMetrics(*excelPath, *deep, *worksheets, *excludedRows, *timestampColumn, *dataColumn, *formatTime, *millisecondTimestamp)
 	if err != nil {
 		elog.Log.Error("GetMetrics faild", err)
 		return err
 	}
 
-	metricData := util.DataIntegration(*fqName, dataMetrics, *formatTime, *millisecondTimestamp)
+	metricData := util.DataIntegration(*fqName, dataMetrics)
 
 	if *outPath == "" {
 		fmt.Println(string(metricData))

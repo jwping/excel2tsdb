@@ -18,7 +18,7 @@ var (
 		Aliases: []string{"tsdb", "prometheus", "2tsdb", "2ts"},
 		Short:   "excel converted to prometheus tsdb data",
 		Long: `The converted prometheus tsdb data files can be placed directly in the prometheus data directory.
-Note that prometheus needs to be restarted after importing the tsdb, and historical data may be cleaned up due to the data retention time set by prometheus (default: 15d) if it is too late. Specific see Prometheus - storage. TSDB. Retention. The time parameter.`,
+Note that prometheus needs to be restarted after importing the tsdb, and historical data may be cleaned up due to the data retention time set by prometheus (default: 15d) if it is too late. Specific see Prometheus "--storage.tsdb.retention". The time parameter.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := toTsdbRun(); err != nil {
 				elog.Log.Error("tsdb run faild", err)
@@ -39,12 +39,12 @@ func init() {
 }
 
 func toTsdbRun() error {
-	dataMetrics, err := util.GetMetrics(*excelPath, *deep, *worksheets, *excludedRows, *timestampColumn, *dataColumn)
+	dataMetrics, err := util.GetMetrics(*excelPath, *deep, *worksheets, *excludedRows, *timestampColumn, *dataColumn, *formatTime, *millisecondTimestamp)
 	if err != nil {
 		return err
 	}
 
-	metricData := util.DataIntegration(*fqName, dataMetrics, *formatTime, *millisecondTimestamp)
+	metricData := util.DataIntegration(*fqName, dataMetrics)
 
 	f, err := ioutil.TempFile(os.TempDir(), ".openmetrics.tmp")
 
@@ -65,6 +65,13 @@ func toTsdbRun() error {
 	cmd.Stderr = os.Stderr
 	if err = cmd.Run(); err != nil {
 		elog.Log.Error("Description Failed to convert to tsdb", err, "tempfile", f.Name())
+		return err
+	}
+
+	elog.Log.Info("Export successfully! Manually copy all tsdb data in the export directory to the data directory of Prometheus and restart it.", "metric_name", *fqName)
+
+	if err = f.Close(); err != nil {
+		elog.Log.Error("tempfile clost faild", err, "tempfile", f.Name())
 		return err
 	}
 
